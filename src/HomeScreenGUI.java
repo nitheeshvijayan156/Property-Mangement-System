@@ -1331,6 +1331,7 @@ public class HomeScreenGUI extends JFrame {
 
         });
 
+        //addActionListner
         j.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 amendTenMenu.dispose();
