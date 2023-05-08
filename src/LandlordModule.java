@@ -10,14 +10,6 @@ public class LandlordModule {
     }
 
     public void run() {
-        // //Display a welcome message and menu options
-        // System.out.println("Welcome to the Landlord Module!");
-        // System.out.println("Please select an option:");
-        // System.out.println("1. View Properties");
-        // System.out.println("2. Add Property");
-        // System.out.println("3. Update Property");
-        // System.out.println("4. Delete Property");
-        // System.out.println("5. Go back to main menu");
 
         // Get user input for the menu option
         int choice = getUserChoice();
