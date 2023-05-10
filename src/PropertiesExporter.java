@@ -10,7 +10,7 @@ public class PropertiesExporter {
     public static void main(String[] args) {
         String url = "jdbc:mysql://localhost:3306/pms";
         String user = "root";
-        String password = "227069";
+        String password = "divya@01";
         
         try (Connection conn = DriverManager.getConnection(url, user, password);
              Statement stmt = conn.createStatement();

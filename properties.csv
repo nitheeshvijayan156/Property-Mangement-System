@@ -1,0 +1,2 @@
+id,address,rent,is_available,num_bedrooms,status
+1,123 abc ,20000.0,true,1,AVAILABLE
