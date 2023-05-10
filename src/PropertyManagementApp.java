@@ -1,6 +1,3 @@
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.URL;
 import java.sql.*;
 import java.util.Scanner;
 
@@ -20,14 +17,13 @@ public class PropertyManagementApp {
         System.out.println("║ 1. Landlord                          ║");
         System.out.println("║ 2. Tenant                            ║");
         System.out.println("║ 3. Property Manager                  ║");
-        System.out.println("║ 4. Get Data                              ║");
-        System.out.println("║ 5. Exit                              ║");
+        System.out.println("║ 4. Exit                              ║");
         System.out.println("╚══════════════════════════════════════╝");
         
 
         // Get user input for the menu option
         int choice = getUserChoice();
-        DatabaseManager databaseManager = new DatabaseManager(connection);
+
         // Process the user's choice
         switch (choice) {
             case 1:
@@ -46,32 +42,6 @@ public class PropertyManagementApp {
                 propertyManagerModule.run();
                 break;
             case 4:
-                System.out.println("EXTRACTING DATA.......");
-                try 
-                (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM properties")) {
-                    FileWriter writer = new FileWriter("properties.csv");
-                    writer.write("id,address,rent,is_available,num_bedrooms,status\n");
-                    while (rs.next()) {
-                        int id = rs.getInt("id");
-                        String address = rs.getString("address");
-                        double rent = rs.getDouble("rent");
-                        boolean isAvailable = rs.getBoolean("is_available");
-                        int numBedrooms = rs.getInt("num_bedrooms");
-                        String status = rs.getString("status");
-                        writer.write(id + "," + address + "," + rent + "," + isAvailable + "," + numBedrooms + "," + status + "\n");
-                    }
-                    writer.close();
-                    System.out.println("Data exported to properties.csv");
-       
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case 5:
                 // Exit the app
                 System.out.println("Goodbye!");
                 System.exit(0);

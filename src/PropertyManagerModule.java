@@ -18,6 +18,7 @@ public class PropertyManagerModule {
             System.out.println( "║1. Tenant Module                                  ║");
             System.out.println( "║2. Landlord Module                                ║");
             System.out.println( "║3. Go back to main menu                           ║");
+            System.out.println( "║4. Export Data                                    ║");
             System.out.println("╚══════════════════════════════════════════════════╝");
             
 
@@ -39,6 +40,10 @@ public class PropertyManagerModule {
                     break;
                 case 3:
                     System.out.println("Exiting Property Management App...");
+                    break;
+                case 4:
+                    System.out.println("EXPORT PROPERTY DATA");
+                    PropertiesExporter.main(null);                   
                     break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
