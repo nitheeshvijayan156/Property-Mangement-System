@@ -16,9 +16,11 @@ public class TenantModule {
         System.out.println("║                 Tenant Module                    ║");
         System.out.println("╠══════════════════════════════════════════════════╣");
         System.out.println("║Please select an option:                          ║");
-        System.out.println( "║1. View Properties                                ║");
-        System.out.println( "║2. View My Lease                                  ║");
-        System.out.println( "║3. Go back to main menu                           ║");
+        System.out.println( "║1. Add Tenant                                     ║");
+        System.out.println( "║2. View Tenants                                   ║");
+        System.out.println( "║3. View My Lease                                  ║");
+        System.out.println( "║4. Get Lease                                      ║");
+        System.out.println( "║5. Go back to main menu                           ║");
         System.out.println("╚══════════════════════════════════════════════════╝");
 
         // Get user input for the menu option
@@ -27,18 +29,28 @@ public class TenantModule {
         // Process the user's choice
         switch (choice) {
             case 1:
-                // View Properties
-                viewProperties();
+                addTenant();
                 TenantModule tenantModule = new TenantModule(connection);
                 tenantModule.run();
                 break;
             case 2:
+                // View Properties
+                viewTenants();
+                TenantModule tenantModule0 = new TenantModule(connection);
+                tenantModule0.run();
+                break;
+            case 3:
                 // View My Lease
                 viewMyLease();
                 TenantModule tenantModule1 = new TenantModule(connection);
                 tenantModule1.run();
                 break;
-            case 3:
+            case 4:
+                getLease();
+                TenantModule tenantModule2 = new TenantModule(connection);
+                tenantModule2.run();
+                break;
+            case 5:
                 // Go back to main menu
                 System.out.println("Going back to main menu...");
                 PropertyManagementApp propertyManagementApp = new PropertyManagementApp(connection);
@@ -65,7 +77,69 @@ public class TenantModule {
     
         return choice;
     }
+    
+    private void addTenant() {
+        Scanner scanner = new Scanner(System.in);
+        try {
+            // Prompt the user to enter tenant details
+            System.out.print("Enter tenant name : ");
+            String name = scanner.nextLine();
+            System.out.print("Enter tenant email : ");
+            String email = scanner.nextLine();
+            System.out.print("Enter tenant password : ");
+            String password = scanner.nextLine();
 
+            // Create a prepared statement to insert the tenant into the table
+            String query = "INSERT INTO tenants (name, email, password) VALUES (?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, name);
+            statement.setString(2, email);
+            statement.setString(3, password);
+            
+            // Execute the query
+            statement.executeUpdate();
+
+            System.out.println("Tenant added successfully!");
+
+        } catch (SQLException e) {
+            System.out.println("An error occurred while adding the tenant: " + e.getMessage());
+        }
+    }
+    private void viewTenants() {
+        try {
+            // Create a statement object to execute SQL queries
+            Statement statement = connection.createStatement();
+
+            // Execute a query to get all tenants
+            String query = "SELECT * FROM tenants";
+            ResultSet resultSet = statement.executeQuery(query);
+
+            // Print the results of the query
+            System.out.println("Tenant List:");
+            System.out.println("+----+------------------+------------------------+");
+            System.out.println("| ID | Name             | Email                  |");
+            System.out.println("+----+------------------+------------------------+");
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                String email = resultSet.getString("email");
+                //String password = resultSet.getString("password");
+
+                // Print the tenant details in a row
+                System.out.format("| %2d | %-16s | %-16s |\n", id, name, email);
+            }
+
+            System.out.println("+----+------------------+------------------------+");
+
+            // Close the statement and result set
+            statement.close();
+            resultSet.close();
+
+        } catch (SQLException e) {
+            System.out.println("An error occurred while retrieving tenants: " + e.getMessage());
+        }
+    }
     private void viewProperties() {
         try {
             // Create a statement object to execute SQL queries
@@ -141,6 +215,69 @@ public class TenantModule {
             System.out.println("Error fetching leases: " + e.getMessage());
         }
     }
-    
-    
+    private void getLease() {
+        try {
+            // Display available properties
+            viewProperties();
+
+            // Prompt the user to enter the ID of the property they want to lease
+            System.out.print("Enter the ID of the property you want to lease: ");
+            int propertyId = scanner.nextInt();
+
+            // Check if the property is available for lease
+            String checkAvailabilityQuery = "SELECT is_available FROM properties WHERE id = ?";
+            PreparedStatement checkAvailabilityStatement = connection.prepareStatement(checkAvailabilityQuery);
+            checkAvailabilityStatement.setInt(1, propertyId);
+            ResultSet availabilityResult = checkAvailabilityStatement.executeQuery();
+
+            if (availabilityResult.next()) {
+                int isAvailable = availabilityResult.getInt("is_available");
+
+                if (isAvailable == 1) {
+                    // The property is available, prompt for lease details
+                    System.out.print("Enter your tenant ID: ");
+                    int tenantId = scanner.nextInt();
+                    scanner.nextLine(); // Consume the remaining newline character
+                    System.out.print("Enter the start date (yyyy-MM-dd): ");
+                    String startDateString = scanner.nextLine();
+                    Date startDate = Date.valueOf(startDateString);
+                    System.out.print("Enter the end date (yyyy-MM-dd): ");
+                    String endDateString = scanner.nextLine();
+                    Date endDate = Date.valueOf(endDateString);
+                    System.out.print("Enter the monthly rent amount: ");
+                    double rentAmount = scanner.nextDouble();
+                    scanner.nextLine(); // Consume the remaining newline character
+
+                    // Insert the lease into the leases table
+                    String insertLeaseQuery = "INSERT INTO leases (property_id, tenant_id, start_date, end_date, rent) VALUES (?, ?, ?, ?, ?)";
+                    PreparedStatement insertLeaseStatement = connection.prepareStatement(insertLeaseQuery);
+                    insertLeaseStatement.setInt(1, propertyId);
+                    insertLeaseStatement.setInt(2, tenantId);
+                    insertLeaseStatement.setDate(3, startDate);
+                    insertLeaseStatement.setDate(4, endDate);
+                    insertLeaseStatement.setDouble(5, rentAmount);
+                    insertLeaseStatement.executeUpdate();
+
+                    // Update the property status to unavailable
+                    String updatePropertyQuery = "UPDATE properties SET is_available = 0 WHERE id = ?";
+                    PreparedStatement updatePropertyStatement = connection.prepareStatement(updatePropertyQuery);
+                    updatePropertyStatement.setInt(1, propertyId);
+                    updatePropertyStatement.executeUpdate();
+
+                    System.out.println("Lease successfully created!");
+
+                } else {
+                    // The property is not available for lease
+                    System.out.println("This property is not available for lease.");
+                }
+            } else {
+                // Invalid property ID
+                System.out.println("Invalid property ID.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("An error occurred while processing the lease: " + e.getMessage());
+        }
+    }
+
 }
